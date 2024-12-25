@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Fixed.h"
+#include "FastFixed.h"
 #include <array>
 #include "TypeGen.h"
-#include "FastFixed.h"
 
 using std::array;
-
 #ifndef SIZES
 #define SIZES
 #endif
@@ -15,7 +14,7 @@ constexpr array t{TYPES};
 constexpr array s{DYNAMIC, SIZES};
 
 template <int num>
-struct NToT
+struct stNumberToType
 {
     static auto get()
     {
@@ -32,33 +31,33 @@ struct NToT
 };
 
 template <int num>
-using numType = typename decltype(NToT<num>::get())::type;
-
+using numType = typename decltype(stNumberToType<num>::get())::type;
 template <typename P, typename V, typename VF, size_t N, size_t M>
 std::unique_ptr<Simulator> generateSim() {
     return std::make_unique<SimulatorImpl<P, V, VF, N, M>>();
 }
 
 template <int index>
-constexpr auto simGen()
+constexpr auto simulatorsGenerator()
 {
-    auto res = simGen<index + 1>();
+    auto res = simulatorsGenerator<index+1>();
     res[index] = generateSim<numType<t[index/(t.size()*t.size()*s.size())]>,
             numType<t[index%(t.size()*t.size()*s.size())/(t.size()*s.size())]>,
                     numType<t[index%(t.size()*s.size())/s.size()]>, s[index%s.size()].first, s[index%s.size()].second>;
     return res;
 }
+
 using genfunc = std::unique_ptr<Simulator>(*)();
 
 template <>
-constexpr auto simGen<t.size() * t.size() * t.size() * s.size()>() {
+constexpr auto simulatorsGenerator<t.size()*t.size()*t.size()*s.size()>() {
     return array<genfunc, t.size()*t.size()*t.size()*s.size()>();
 }
 
 template <int index>
-constexpr auto typeGen()
+constexpr auto typesGenerator()
 {
-    auto res = typeGen<index + 1>();
+    auto res = typesGenerator<index+1>();
     res[index] = {t[index/(t.size()*t.size()*s.size())],
                   t[index%(t.size()*t.size()*s.size())/(t.size()*s.size())],
                   t[index%(t.size()*s.size())/s.size()], s[index%s.size()].first, s[index%s.size()].second};
@@ -66,9 +65,9 @@ constexpr auto typeGen()
 }
 
 template <>
-constexpr auto typeGen<t.size() * t.size() * t.size() * s.size()>() {
+constexpr auto typesGenerator<t.size()*t.size()*t.size()*s.size()>() {
     return array<tuple<int, int, int, size_t, size_t>, t.size()*t.size()*t.size()*s.size()>();
 }
 
-constexpr auto generateTypes = typeGen<0>;
-constexpr auto generateSimulators = simGen<0>;
+constexpr auto generateTypes = typesGenerator<0>;
+constexpr auto generateSimulators = simulatorsGenerator<0>;

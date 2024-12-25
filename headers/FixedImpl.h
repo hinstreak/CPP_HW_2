@@ -2,19 +2,17 @@
 
 #include <iostream>
 #include <cstddef>
-#include <cstdint>
 
 template <typename V, size_t K1>
 struct FixedImpl
 {
-    template <typename V2, size_t K2>
-    explicit constexpr FixedImpl(FixedImpl<V2, K2> f): v((K1>=K2)?(((int64_t)f.v) << (K1-K2)):(f.v >> (K2-K1))) {}
-
     constexpr FixedImpl(int64_t v): v(v << K1) {}
     constexpr FixedImpl(float f): v(f * (1ll << K1)) {}
     constexpr FixedImpl(double f): v(f * (1ll << K1)) {}
     constexpr FixedImpl(): v(0) {}
 
+    template <typename V2, size_t K2>
+    constexpr FixedImpl(FixedImpl<V2, K2> f): v((K1>=K2)?(((int64_t)f.v) << (K1-K2)):(f.v >> (K2-K1))) {}
     static constexpr FixedImpl from_raw(int64_t x)
     {
         FixedImpl ret;

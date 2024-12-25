@@ -4,11 +4,10 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
-
 #include "Const.h"
 #include "VectorField.h"
 #include "InfoF.h"
-#include "CusMatrix.h"
+#include "Arr.h"
 #include "ParsingSettings.h"
 
 using std::tuple, std::pair, std::ofstream;
@@ -25,9 +24,9 @@ struct SimulatorImpl final: Simulator
 {
     VectorField<vt, Nv, Mv> velocity{};
     VectorField<vft, Nv, Mv> velocity_flow{};
-    CusMatrix<pt, Nv, Mv> p{}, old_p{};
-    CusMatrix<int64_t, Nv, Mv> last_use{}, dirs{};
-    CusMatrix<uint8_t, Nv, Mv> field{};
+    Arr<pt, Nv, Mv> p{}, old_p{};
+    Arr<int64_t, Nv, Mv> last_use{}, dirs{};
+    Arr<uint8_t, Nv, Mv> field{};
 
     size_t N = Nv, M = Mv;
     pt rho[256]{};
@@ -107,7 +106,7 @@ vt SimulatorImpl<pt, vt, vft, Nv, Mv>::random01()
         return vt(rnd()) / vt(std::mt19937::max());
     }
     else {
-        return vt::from_raw((rnd() & ((1ll << vt::k) - 1ll)));
+        return vt::from_raw((rnd() & ((int64_t(1) << vt::k) - 1)));
     }
 }
 
@@ -191,7 +190,6 @@ vt SimulatorImpl<pt, vt, vft, Nv, Mv>::move_prob(int x, int y)
     return sum;
 }
 
-
 template <typename pt, typename vt, typename vft, size_t Nv, size_t Mv>
 bool SimulatorImpl<pt, vt, vft, Nv, Mv>::propagate_move(int x, int y, bool is_first)
 {
@@ -254,27 +252,21 @@ bool SimulatorImpl<pt, vt, vft, Nv, Mv>::propagate_move(int x, int y, bool is_fi
 template <typename pt, typename vt, typename vft, size_t Nv, size_t Mv>
 void SimulatorImpl<pt, vt, vft, Nv, Mv>::nextTick()
 {
-    size_t x = 0;
-    while (x < N) {
-        size_t y = 0;
-        while (y < M) {
-            if (field[x][y] == '#') {
-                ++y;
-                continue;
-            }
+    for (size_t x = 0; x < N; ++x)
+    {
+        for (size_t y = 0; y < M; ++y)
+        {
+            if (field[x][y] == '#') continue;
             if (field[x + 1][y] != '#') {
                 velocity.add(x, y, 1, 0, g);
             }
-            ++y;
         }
-        ++x;
     }
 
     old_p = p;
-    x = 0;
-    while (x < N) {
-        size_t y = 0;
-        while (y < M)
+    for (size_t x = 0; x < N; ++x)
+    {
+        for (size_t y = 0; y < M; ++y)
         {
             if (field[x][y] == '#') continue;
             for (auto [dx, dy] : deltas)
@@ -295,9 +287,7 @@ void SimulatorImpl<pt, vt, vft, Nv, Mv>::nextTick()
                     p[x][y] -= force / pt(dirs[x][y]);
                 }
             }
-            ++y;
         }
-        ++x;
     }
 
     velocity_flow.clear();
@@ -306,22 +296,15 @@ void SimulatorImpl<pt, vt, vft, Nv, Mv>::nextTick()
     do {
         UT += 2;
         prop = false;
-        size_t x = 0;
-        size_t y = 0;
-        while (x < N)
-        {
-            y = 0;
-            while (y < M)
-            {
+        for (size_t x = 0; x < N; ++x) {
+            for (size_t y = 0; y < M; ++y) {
                 if (field[x][y] != '#' && last_use[x][y] != UT) {
                     auto [t, local_prop, _] = propagate_flow(x, y, int64_t(1));
                     if (t > int64_t(0)) {
                         prop = true;
                     }
-                    ++y;
                 }
             }
-            ++x;
         }
     } while (prop);
 
@@ -380,6 +363,7 @@ void SimulatorImpl<pt, vt, vft, Nv, Mv>::nextTick()
         serialize();
         cur_tick = 0;
     }
+
 }
 
 template <typename pt, typename vt, typename vft, size_t Nv, size_t Mv>
@@ -387,21 +371,21 @@ void SimulatorImpl<pt, vt, vft, Nv, Mv>::serialize()
 {
     ofstream out(out_name);
 
-    auto cnt = std::count_if(rho, rho+256, [](auto i){return i!=0l;});
+    auto cnt = std::count_if(rho, rho+256, [](auto i){return i!=int64_t(0);});
 
     out << N << " " << M << " " << g << " " << cnt << "\n";
-    int i = 0;
-    while (i < 256)
-    {
-        if (rho[i] == 0l) continue;
+    for (int i = 0; i < 256; i++) {
+        if (rho[i] == int64_t(0)) continue;
         out << ((uint8_t)i) << " " << rho[i] << "\n";
-        i++;
     }
 
-    for (size_t x = 0; x < N; x++) {
-        for (size_t y = 0; y < M; y++) {
+    for (size_t x = 0; x < N; x++)
+    {
+        for (size_t y = 0; y < M; y++)
+        {
             out << field[x][y];
         }
+        out << "\n";
     }
     out.close();
 }

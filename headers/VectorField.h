@@ -2,15 +2,14 @@
 
 #include <cassert>
 #include <array>
-#include <algorithm>
 #include "Const.h"
-#include "CusMatrix.h"
+#include "Arr.h"
 
 template <typename Type, int Nv, int Mv>
 struct VectorField
 {
     size_t N = Nv, M = Mv;
-    CusMatrix<std::array<Type, deltas.size()>, Nv, Mv> v;
+    Arr<std::array<Type, deltas.size()>, Nv, Mv> v;
 
     Type& add(int x, int y, int dx, int dy, Type dv) {
         return get(x, y, dx, dy) += dv;
@@ -18,11 +17,13 @@ struct VectorField
 
     Type& get(int x, int y, int dx, int dy)
     {
-        return v[x][y][((dy&1)<<1) | (((dx&1)&((dx&2)>>1)) | ((dy&1)&((dy&2)>>1)))];
+        size_t i = std::ranges::find(deltas, std::pair(dx, dy)) - deltas.begin();
+        assert(i < deltas.size());
+        return v[x][y][i];
     }
 
     void clear();
-    void init(size_t Nvalue, size_t Mvalue);
+    void init(size_t Nval, size_t Mval);
 };
 
 template <typename Type, int Nv, int Mv>
@@ -39,7 +40,7 @@ void VectorField<Type, Nv, Mv>::clear()
 }
 
 template <typename Type, int Nv, int Mv>
-void VectorField<Type, Nv, Mv>::init(size_t Nvalue, size_t Mvalue)
+void VectorField<Type, Nv, Mv>::init(size_t Nval, size_t Mval)
 {
-    N = Nvalue; M = Mvalue; v.init(Nvalue, Mvalue);
+    N = Nval; M = Mval; v.init(Nval, Mval);
 }

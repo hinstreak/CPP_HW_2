@@ -32,7 +32,6 @@ bool parsing(const std::string& pattern, string* ret, string& line, int* grNum, 
     return true;
 }
 
-
 int getTypeFromName(std::string& name)
 {
     if (name.size() == 0) {return 0;}
@@ -49,15 +48,14 @@ int getTypeFromName(std::string& name)
     return FAST_FIXED(stoi(numbers[0]), stoi(numbers[1]));
 }
 
-
-SimSetts parseSettings(const int argc, char* argv[])
+SimSetts SettingsParse(const int argc, char* argv[])
 {
     std::string all;
     for (int i = 1; i < argc; i++) {
         all += argv[i]; all += " ";
     }
 
-    SimSetts st{};
+    SimSetts settings{};
     std::string p_type_s, v_type_s, vf_type_s, in_filename, out_filename, ticks;
     int group = 1;
 
@@ -67,9 +65,10 @@ SimSetts parseSettings(const int argc, char* argv[])
     parsing("--in-file="  STRING_FILE_PATH, &in_filename, all, &group, 1);
     parsing("--out-file=" STRING_FILE_PATH, &out_filename, all, &group, 1);
     parsing("--n-ticks="  NUMBER, &ticks, all, &group, 1);
-    st.p_type  = getTypeFromName(p_type_s);    st.v_type  = getTypeFromName(v_type_s);
-    st.vf_type = getTypeFromName(vf_type_s);
-    st.input_filename =  in_filename;    st.output_filename = out_filename;
+    settings.p_type  = getTypeFromName(p_type_s);    settings.v_type  = getTypeFromName(v_type_s);
+    settings.vf_type = getTypeFromName(vf_type_s);
+    settings.input_filename =  in_filename;    settings.output_filename = out_filename;
+    if (!ticks.empty()) settings.n_ticks = stoi(ticks);
 
-    return st;
+    return settings;
 }

@@ -1,14 +1,11 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
-
 #define FIXED(n, k) (100*n+k)
 #define FAST_FIXED(n, k) (10000*n+k)
 #define FLOAT 1000000
 #define DOUBLE 2000000
-#define DYNAMIC pair{0, 0}
 #define S(a, b) pair<int, int>(a, b)
+#define DYNAMIC pair{0, 0}
 
 struct SimSetts
 {
@@ -17,4 +14,4 @@ struct SimSetts
     int64_t n_ticks;
 };
 
-SimSetts parseSettings(int argc, char* argv[]);
+SimSetts SettingsParse(int argc, char* argv[]);
