@@ -18,9 +18,7 @@ struct VectorField
 
     Type& get(int x, int y, int dx, int dy)
     {
-        size_t i = std::ranges::find(deltas, std::pair(dx, dy)) - deltas.begin();
-        assert(i < deltas.size());
-        return v[x][y][i];
+        return v[x][y][((dy&1)<<1) | (((dx&1)&((dx&2)>>1)) | ((dy&1)&((dy&2)>>1)))];
     }
 
     void clear();

@@ -17,4 +17,4 @@ struct SimSetts
     int64_t n_ticks;
 };
 
-SimSetts parseArgs(int argc, char* argv[]);
+SimSetts parseSettings(int argc, char* argv[]);

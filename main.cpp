@@ -9,11 +9,11 @@ constexpr auto types = generateTypes();
 
 int main(int argc, char* argv[])
 {
-    SimSetts sets = parseArgs(argc, argv);
+    SimSetts sets = parseSettings(argc, argv);
     InfoF info(sets.input_filename);
 
     tuple need = {sets.p_type, sets.v_type, sets.vf_type, info.height, info.width};
-    auto index = std::find(types.begin(), types.end(), need) - types.begin();
+    size_t index = std::find(types.begin(), types.end(), need) - types.begin();
     if (index == types.size())
     {
         need = {sets.p_type, sets.v_type, sets.vf_type, 0, 0};

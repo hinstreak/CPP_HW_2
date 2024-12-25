@@ -10,10 +10,10 @@ struct FixedImpl
     template <typename V2, size_t K2>
     explicit constexpr FixedImpl(FixedImpl<V2, K2> f): v((K1>=K2)?(((int64_t)f.v) << (K1-K2)):(f.v >> (K2-K1))) {}
 
-    explicit constexpr FixedImpl(int64_t v): v(v << K1) {}
-    explicit constexpr FixedImpl(float f): v(f * (1ll << K1)) {}
-    explicit constexpr FixedImpl(double f): v(f * (1ll << K1)) {}
-    explicit constexpr FixedImpl(): v(0) {}
+    constexpr FixedImpl(int64_t v): v(v << K1) {}
+    constexpr FixedImpl(float f): v(f * (1ll << K1)) {}
+    constexpr FixedImpl(double f): v(f * (1ll << K1)) {}
+    constexpr FixedImpl(): v(0) {}
 
     static constexpr FixedImpl from_raw(int64_t x)
     {

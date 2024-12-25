@@ -35,7 +35,7 @@ template <int num>
 using numType = typename decltype(NToT<num>::get())::type;
 
 template <typename P, typename V, typename VF, size_t N, size_t M>
-constexpr std::unique_ptr<Simulator> generateSim() {
+std::unique_ptr<Simulator> generateSim() {
     return std::make_unique<SimulatorImpl<P, V, VF, N, M>>();
 }
 

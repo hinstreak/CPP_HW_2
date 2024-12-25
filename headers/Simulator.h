@@ -398,18 +398,10 @@ void SimulatorImpl<pt, vt, vft, Nv, Mv>::serialize()
         i++;
     }
 
-    int x = 0;
-    int y = 0;
-    while (x < N)
-    {
-        y = 0;
-        while (y < M)
-        {
+    for (size_t x = 0; x < N; x++) {
+        for (size_t y = 0; y < M; y++) {
             out << field[x][y];
-            y++;
         }
-        out << "\n";
-        x++;
     }
     out.close();
 }
