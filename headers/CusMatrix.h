@@ -44,9 +44,14 @@ std::vector<T>& CusMatrix<T, 0, 0>::operator[](size_t index) {
 }
 
 template <typename T, size_t Nv, size_t Mv>
-CusMatrix<T, Nv, Mv>& CusMatrix<T, Nv, Mv>::operator=(const CusMatrix& other)
-{
+CusMatrix<T, Nv, Mv>& CusMatrix<T, Nv, Mv>::operator=(const CusMatrix& other) {
     if(this == &other) {return *this;}
     memcpy(v, other.v, sizeof(v));
+    return *this;
+}
+
+template <typename T>
+CusMatrix<T, 0, 0>& CusMatrix<T, 0, 0>::operator=(const CusMatrix& other) {
+    v = other.v;
     return *this;
 }
